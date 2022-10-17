@@ -13,7 +13,7 @@ service CalculatorService{
   rpc ComputeAverage (stream ComputeAverageRequest) returns (ComputeAverageResponse) {}
 
   // BiDi Streaming API
-  rpc FindMaximum (stream FindMaximumRequest) returns (FindMaximumResponse) {}
+  rpc FindMaximum (stream FindMaximumRequest) returns (stream FindMaximumResponse) {}
 }
 
 message SumRequest {

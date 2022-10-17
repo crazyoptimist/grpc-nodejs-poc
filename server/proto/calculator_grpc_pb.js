@@ -134,7 +134,7 @@ computeAverage: {
 findMaximum: {
     path: '/calculator.CalculatorService/FindMaximum',
     requestStream: true,
-    responseStream: false,
+    responseStream: true,
     requestType: proto_calculator_pb.FindMaximumRequest,
     responseType: proto_calculator_pb.FindMaximumResponse,
     requestSerialize: serialize_calculator_FindMaximumRequest,
