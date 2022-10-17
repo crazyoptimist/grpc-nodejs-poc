@@ -96,6 +96,41 @@ function callLongGreet() {
   }, 1000)
 }
 
+const { sleep } = require('../server/index')
+
+async function callGreetEveryone() {
+  const client = new greetService.GreetServiceClient(
+    'localhost:50051',
+    grpc.credentials.createInsecure()
+  )
+
+  const request = new greets.GreetEveryoneRequest()
+  const call = client.greetEveryone(request, (error, response) => {
+    console.log(response)
+  })
+
+  call.on('data', response => {
+    console.log(response.getResult())
+  })
+
+  call.on('error', error => console.error(error))
+
+  call.on('end', () => console.log('The End....'))
+
+  for(let i=0; i<10; i++) {
+    const greeting = new greets.Greeting()
+    greeting.setFirstName('John')
+    greeting.setLastName('Doe')
+
+    const request = new greets.GreetEveryoneRequest()
+    request.setGreeting(greeting)
+
+    call.write(request)
+    sleep(10)
+  }
+  call.end()
+}
+
 function callSum() {
   var client = new calcService.CalculatorServiceClient(
     'localhost:50051',
@@ -181,6 +216,6 @@ function callComputeAverage() {
 }
 
 function main() {
-  callComputeAverage()
+  callGreetEveryone()
 }
 main()

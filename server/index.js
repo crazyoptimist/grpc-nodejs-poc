@@ -53,6 +53,38 @@ function longGreet(call, callback) {
   })
 }
 
+async function sleep(interval) {
+  return new Promise( resolve => {
+    setTimeout(() => resolve(), interval)
+  } )
+}
+
+exports.sleep = sleep
+
+async function greetEveryone(call, callback) {
+  let names = []
+  call.on('data', response => {
+    const fullName = response.getGreeting().getFirstName() + " " + response.getGreeting().getLastName()
+    console.log('Received ', fullName)
+
+    names.push(fullName)
+  })
+
+  call.on('error', error => console.error(error))
+
+  call.on('end', () => {
+    console.log('The End...')
+  })
+
+  await sleep(3000)
+  for (let i=0; i<10; i++) {
+    const response = new greets.GreetEveryoneResponse()
+    response.setResult(`Hello, ${i} - ${names[i]} !`)
+    call.write(response)
+  }
+  call.end()
+}
+
 function sum(call, callback) {
   var sumResponse = new calc.SumResponse()
 
@@ -110,17 +142,18 @@ function computeAverage(call, callback) {
 function main() {
   var server = new grpc.Server()
 
-  // server.addService(greetService.GreetServiceService, {
-  //   greet,
-  //   greetManyTimes,
-  //   longGreet,
-  // })
-
-  server.addService(calcService.CalculatorServiceService, {
-    sum,
-    primeNumberDecomposition,
-    computeAverage,
+  server.addService(greetService.GreetServiceService, {
+    greet,
+    greetManyTimes,
+    longGreet,
+    greetEveryone,
   })
+
+  // server.addService(calcService.CalculatorServiceService, {
+  //   sum,
+  //   primeNumberDecomposition,
+  //   computeAverage,
+  // })
 
   server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure())
   server.start()
