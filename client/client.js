@@ -241,7 +241,29 @@ function callFindMaximum() {
   call.end()
 }
 
+function callSquareRoot() {
+  const client = new calcService.CalculatorServiceClient(
+    'localhost:50051',
+    grpc.credentials.createInsecure()
+  )
+
+  const request = new calc.SquareRootRequest()
+
+  const number = 9
+
+  request.setNumber(number)
+
+  client.squareRoot(request, (error, response) => {
+    if (!error) {
+      console.log(`Square root is ${response.getNumberRoot()}`)
+    } else {
+      console.log(error.message)
+    }
+  })
+
+}
+
 function main() {
-  callFindMaximum()
+  callSquareRoot()
 }
 main()

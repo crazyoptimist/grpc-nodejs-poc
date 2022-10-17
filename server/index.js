@@ -162,6 +162,25 @@ function findMaximum(call, callback) {
   })
 }
 
+function squareRoot(call, callback) {
+  const number = call.request.getNumber()
+
+  if (number >= 0) {
+    const numberRoot = Math.sqrt(number)
+
+    const response = new calc.SquareRootResponse()
+    response.setNumberRoot(numberRoot)
+
+    callback(null, response)
+  } else {
+    return callback({
+      code: grpc.status.INVALID_ARGUMENT,
+      message: `The number being sent is not positive: ${number}`
+    })
+  }
+}
+
+
 function main() {
   var server = new grpc.Server()
 
@@ -177,6 +196,7 @@ function main() {
     primeNumberDecomposition,
     computeAverage,
     findMaximum,
+    squareRoot,
   })
 
   server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure())
