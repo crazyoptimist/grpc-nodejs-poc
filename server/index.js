@@ -1,6 +1,9 @@
 var greets = require('../server/proto/greet_pb')
 var service = require('../server/proto/greet_grpc_pb')
 
+var calc = require('../server/proto/calculator_pb')
+var calcService = require('../server/proto/calculator_grpc_pb')
+
 var grpc = require('grpc')
 
 /*
@@ -17,9 +20,21 @@ function greet(call, callback) {
   callback(null, greeting)
 }
 
+function sum(call, callback) {
+  var sumResponse = new calc.SumResponse()
+
+  sumResponse.setSumResult(
+    call.request.getFirstNumber() + call.request.getSecondNumber()
+  )
+
+  callback(null, sumResponse)
+}
+
+
 function main() {
   var server = new grpc.Server()
-  server.addService(service.GreetServiceService, {greet: greet})
+  // server.addService(service.GreetServiceService, {greet: greet})
+  server.addService(calcService.CalculatorServiceService, { sum: sum })
 
   server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure())
   server.start()
