@@ -1,14 +1,11 @@
 var greets = require('../server/proto/greet_pb')
-var service = require('../server/proto/greet_grpc_pb')
+var greetService = require('../server/proto/greet_grpc_pb')
 
 var calc = require('../server/proto/calculator_pb')
 var calcService = require('../server/proto/calculator_grpc_pb')
 
 var grpc = require('grpc')
 
-/*
- * Implements the greet RPC method
- */
 
 function greet(call, callback) {
   var greeting = new greets.GreetResponse()
@@ -18,16 +15,6 @@ function greet(call, callback) {
   )
 
   callback(null, greeting)
-}
-
-function sum(call, callback) {
-  var sumResponse = new calc.SumResponse()
-
-  sumResponse.setSumResult(
-    call.request.getFirstNumber() + call.request.getSecondNumber()
-  )
-
-  callback(null, sumResponse)
 }
 
 function greetManyTimes(call, callback) {
@@ -47,6 +34,33 @@ function greetManyTimes(call, callback) {
       call.end()
     }
   }, 1000)
+}
+
+function longGreet(call, callback) {
+  call.on('data', request => {
+    var fullName = request.getGreet().getFirstName() + " " + request.getGreet().getLastName()
+
+    console.log('Hello, ' + fullName)
+  })
+
+  call.on('error', error => console.error(error))
+
+  call.on('end', () => {
+    var response = new greets.LongGreetResponse()
+    response.setResult('Long Greet Client Streaming.....')
+
+    callback(null, response)
+  })
+}
+
+function sum(call, callback) {
+  var sumResponse = new calc.SumResponse()
+
+  sumResponse.setSumResult(
+    call.request.getFirstNumber() + call.request.getSecondNumber()
+  )
+
+  callback(null, sumResponse)
 }
 
 function primeNumberDecomposition(call, callback) {
@@ -74,8 +88,8 @@ function primeNumberDecomposition(call, callback) {
 
 function main() {
   var server = new grpc.Server()
-  // server.addService(service.GreetServiceService, { greet: greet, greetManyTimes: greetManyTimes })
-  server.addService(calcService.CalculatorServiceService, { sum: sum, primeNumberDecomposition: primeNumberDecomposition })
+  server.addService(greetService.GreetServiceService, { greet, greetManyTimes, longGreet })
+  // server.addService(calcService.CalculatorServiceService, { sum, primeNumberDecomposition })
 
   server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure())
   server.start()
