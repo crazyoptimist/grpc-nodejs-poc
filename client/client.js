@@ -215,7 +215,33 @@ function callComputeAverage() {
 
 }
 
+function callFindMaximum() {
+  const client = new calcService.CalculatorServiceClient(
+    'localhost:50051',
+    grpc.credentials.createInsecure()
+  )
+
+  const request = new calc.FindMaximumRequest()
+  const call = client.findMaximum(request, () => {})
+
+  call.on('data', (response) => {
+      console.log("Current maximum number is: " + response.getMaximum())
+  })
+
+  call.on('error', err => console.error(err))
+
+  const inputStream = [1,5,3,6,2,20]
+
+  for (number of inputStream) {
+    const request = new calc.FindMaximumRequest()
+    request.setNumber(number)
+    call.write(request)
+  }
+
+  call.end()
+}
+
 function main() {
-  callGreetEveryone()
+  callFindMaximum()
 }
 main()

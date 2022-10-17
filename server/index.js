@@ -139,21 +139,45 @@ function computeAverage(call, callback) {
 
 }
 
+function findMaximum(call, callback) {
+  let currentMaximum = Number.NEGATIVE_INFINITY
+
+  call.on('data', (request) => {
+    console.log("Received: " + request.getNumber())
+
+    if (currentMaximum < request.getNumber()) {
+      currentMaximum = request.getNumber()
+
+      const response = new calc.FindMaximumResponse()
+      response.setMaximum(currentMaximum)
+
+      call.write(response)
+    }
+  })
+
+  call.on('error', err => console.error(err))
+
+  call.on('end', () => {
+    call.end()
+  })
+}
+
 function main() {
   var server = new grpc.Server()
 
-  server.addService(greetService.GreetServiceService, {
-    greet,
-    greetManyTimes,
-    longGreet,
-    greetEveryone,
-  })
-
-  // server.addService(calcService.CalculatorServiceService, {
-  //   sum,
-  //   primeNumberDecomposition,
-  //   computeAverage,
+  // server.addService(greetService.GreetServiceService, {
+  //   greet,
+  //   greetManyTimes,
+  //   longGreet,
+  //   greetEveryone,
   // })
+
+  server.addService(calcService.CalculatorServiceService, {
+    sum,
+    primeNumberDecomposition,
+    computeAverage,
+    findMaximum,
+  })
 
   server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure())
   server.start()
