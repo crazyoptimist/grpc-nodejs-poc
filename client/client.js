@@ -29,27 +29,6 @@ function callGreet() {
   })
 }
 
-function callSum() {
-  var client = new calcService.CalculatorServiceClient(
-    'localhost:50051',
-    grpc.credentials.createInsecure()
-  )
-
-  var request = new calc.SumRequest()
-
-  request.setFirstNumber(10)
-  request.setSecondNumber(3)
-
-  client.sum(request, (err, res) => {
-    if (!err) {
-      console.log(request.getFirstNumber() + " + " + request.getSecondNumber() + " = " + res.getSumResult())
-    } else {
-      console.error(err)
-    }
-  })
-
-}
-
 function callGreetManyTimes() {
   var client = new greetService.GreetServiceClient(
     'localhost:50051',
@@ -83,6 +62,62 @@ function callGreetManyTimes() {
   })
 }
 
+function callLongGreet() {
+  var client = new greetService.GreetServiceClient(
+    'localhost:50051',
+    grpc.credentials.createInsecure()
+  )
+
+  var request = new greets.LongGreetRequest()
+  var call = client.longGreet(request, (error, response) => {
+    if (!error) {
+      console.log(response.getResult())
+    } else {
+      console.error(error)
+    }
+  })
+
+  let count = 0, intervalID = setInterval(function() {
+    console.log('Sending message ' + count)
+
+    var request = new greets.LongGreetRequest()
+    var greeting = new greets.Greeting()
+    greeting.setFirstName('John')
+    greeting.setLastName('Doe')
+
+    request.setGreet(greeting)
+
+    call.write(request)
+
+    if (++count > 9) {
+      clearInterval(intervalID)
+      call.end() // we went all the messages, we are done!
+    }
+  }, 1000)
+}
+
+function callSum() {
+  var client = new calcService.CalculatorServiceClient(
+    'localhost:50051',
+    grpc.credentials.createInsecure()
+  )
+
+  var request = new calc.SumRequest()
+
+  request.setFirstNumber(10)
+  request.setSecondNumber(3)
+
+  client.sum(request, (err, res) => {
+    if (!err) {
+      console.log(request.getFirstNumber() + " + " + request.getSecondNumber() + " = " + res.getSumResult())
+    } else {
+      console.error(err)
+    }
+  })
+
+}
+
+
 function callPrimeNumberDecomposition() {
   var client = new calcService.CalculatorServiceClient(
     'localhost:50051',
@@ -115,6 +150,6 @@ function callPrimeNumberDecomposition() {
 }
 
 function main() {
-  callPrimeNumberDecomposition()
+  callLongGreet()
 }
 main()
