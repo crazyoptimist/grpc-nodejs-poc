@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "protoc": "protoc"
+    "server": "nodemon server/index.js"
   },
   "author": "crazyoptimist",
   "license": "ISC",
   "dependencies": {
     "google-protobuf": "^3.21.2",
-    "grpc": "^1.24.11"
+    "grpc": "^1.24.11",
+    "nodemon": "^2.0.20"
   }
 }
