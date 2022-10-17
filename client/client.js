@@ -242,6 +242,8 @@ function callFindMaximum() {
 }
 
 function callSquareRoot() {
+  const deadline = getRPCDeadline(1)
+
   const client = new calcService.CalculatorServiceClient(
     'localhost:50051',
     grpc.credentials.createInsecure()
@@ -253,7 +255,7 @@ function callSquareRoot() {
 
   request.setNumber(number)
 
-  client.squareRoot(request, (error, response) => {
+  client.squareRoot(request, { deadline }, (error, response) => {
     if (!error) {
       console.log(`Square root is ${response.getNumberRoot()}`)
     } else {
@@ -261,6 +263,23 @@ function callSquareRoot() {
     }
   })
 
+}
+
+function getRPCDeadline(rpcType) {
+  timeAllowed = 5000
+
+  switch(rpcType) {
+    case 1:
+      timeAllowed = 10
+      break;
+    case 2:
+      timeAllowed = 7000
+      break;
+    default:
+      console.log('Invalid RPC Type: Using Default')
+  }
+
+  return new Date(Date.now() + timeAllowed)
 }
 
 function main() {
