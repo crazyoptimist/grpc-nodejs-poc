@@ -11,7 +11,7 @@ function greet(call, callback) {
   var greeting = new greets.GreetResponse()
 
   greeting.setResult(
-    "hello " + call.getGreeting().getFirstname()
+    "hello " + call.request.getGreeting().getFirstName() + call.request.getGreeting().getLastName()
   )
 
   callback(null, greeting)
