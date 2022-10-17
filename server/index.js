@@ -86,10 +86,41 @@ function primeNumberDecomposition(call, callback) {
   call.end() // all messages sent, we are done!
 }
 
+function computeAverage(call, callback) {
+  let sum = 0
+  let length = 0
+  call.on('data', request => {
+    sum += request.getNumber()
+    length ++
+
+    console.log('Recieved ' + request.getNumber())
+  })
+
+  call.on('error', error => console.error(error))
+
+  call.on('end', () => {
+    const response = new calc.ComputeAverageResponse()
+    response.setAverage(sum / length)
+
+    callback(null, response)
+  })
+
+}
+
 function main() {
   var server = new grpc.Server()
-  server.addService(greetService.GreetServiceService, { greet, greetManyTimes, longGreet })
-  // server.addService(calcService.CalculatorServiceService, { sum, primeNumberDecomposition })
+
+  // server.addService(greetService.GreetServiceService, {
+  //   greet,
+  //   greetManyTimes,
+  //   longGreet,
+  // })
+
+  server.addService(calcService.CalculatorServiceService, {
+    sum,
+    primeNumberDecomposition,
+    computeAverage,
+  })
 
   server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure())
   server.start()

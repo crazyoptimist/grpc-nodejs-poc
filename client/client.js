@@ -149,7 +149,38 @@ function callPrimeNumberDecomposition() {
   })
 }
 
+function callComputeAverage() {
+  const client = new calcService.CalculatorServiceClient(
+    'localhost:50051',
+    grpc.credentials.createInsecure()
+  )
+
+  const request = new calc.ComputeAverageRequest()
+  var call = client.computeAverage(request, (error, response) => {
+    if (!error) {
+      console.log(response.getAverage())
+    } else {
+      console.error(error)
+    }
+  })
+
+  let count = 1, intervalID = setInterval(function() {
+
+    const request = new calc.ComputeAverageRequest()
+
+    request.setNumber(count)
+
+    call.write(request)
+
+    if (++count > 100) {
+      clearInterval(intervalID)
+      call.end() // we went all the messages, we are done!
+    }
+  }, 10)
+
+}
+
 function main() {
-  callLongGreet()
+  callComputeAverage()
 }
 main()
