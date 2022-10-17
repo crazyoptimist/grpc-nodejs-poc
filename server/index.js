@@ -30,11 +30,29 @@ function sum(call, callback) {
   callback(null, sumResponse)
 }
 
+function greetManyTimes(call, callback) {
+  var firstName = call.request.getGreeting().getFirstName()
+
+  let count = 0, intervalId = setInterval(function() {
+    var greetManyTimesResponse = new greets.GreetManyTimesResponse()
+
+    greetManyTimesResponse.setResult(firstName)
+
+
+    // setup streaming
+    call.write(greetManyTimesResponse)
+
+    if (++count > 9) {
+      clearInterval(intervalId)
+      call.end()
+    }
+  }, 1000)
+}
 
 function main() {
   var server = new grpc.Server()
-  // server.addService(service.GreetServiceService, {greet: greet})
-  server.addService(calcService.CalculatorServiceService, { sum: sum })
+  server.addService(service.GreetServiceService, { greet: greet, greetManyTimes: greetManyTimes })
+  // server.addService(calcService.CalculatorServiceService, { sum: sum })
 
   server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure())
   server.start()

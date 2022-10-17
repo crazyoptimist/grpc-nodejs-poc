@@ -50,7 +50,40 @@ function callSum() {
 
 }
 
+function callGreetManyTimes() {
+  var client = new greetService.GreetServiceClient(
+    'localhost:50051',
+    grpc.credentials.createInsecure()
+  )
+
+  var request = new greets.GreetManyTimesRequest()
+
+  var greeting = new greets.Greeting()
+  greeting.setFirstName('John')
+  greeting.setLastName('Dichone')
+
+  request.setGreeting(greeting)
+
+  var call = client.greetManyTimes(request, () => {})
+
+  call.on('data', (response) => {
+    console.log(response.getResult())
+  })
+
+  call.on('status', (status) => {
+    console.log(status)
+  })
+
+  call.on('error', (error) => {
+    console.log(error)
+  })
+
+  call.on('end', () => {
+    console.log('Streaming Ended')
+  })
+}
+
 function main() {
-  callSum()
+  callGreetManyTimes()
 }
 main()
