@@ -14,6 +14,10 @@ service CalculatorService{
 
   // BiDi Streaming API
   rpc FindMaximum (stream FindMaximumRequest) returns (stream FindMaximumResponse) {}
+
+  // Error Handling Demo
+  // This RPC call will throw an exception if the sent number is negative for example -1
+  rpc SquareRoot (SquareRootRequest) returns (SquareRootResponse) {}
 }
 
 message SumRequest {
@@ -47,4 +51,12 @@ message FindMaximumRequest {
 
 message FindMaximumResponse {
   int32 maximum = 1;
+}
+
+message SquareRootRequest {
+  int32 number = 1;
+}
+
+message SquareRootResponse {
+  float number_root = 1;
 }
