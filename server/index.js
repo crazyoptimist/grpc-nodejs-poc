@@ -5,7 +5,15 @@ var calc = require('../server/proto/calculator_pb')
 var calcService = require('../server/proto/calculator_grpc_pb')
 
 var grpc = require('grpc')
+const fs = require('fs')
 
+// Knex requires
+const environment = process.env.ENVIRONMENT || 'development'
+const config = require('./knex')[environment]
+const knex = require('knex')(config)
+
+
+// Implements RPC methods
 
 function greet(call, callback) {
   var greeting = new greets.GreetResponse()
