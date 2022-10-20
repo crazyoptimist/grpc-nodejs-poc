@@ -4,8 +4,42 @@ var greetService = require('../server/proto/greet_grpc_pb')
 var calc = require('../server/proto/calculator_pb')
 var calcService = require('../server/proto/calculator_grpc_pb')
 
-var grpc = require('grpc')
+var blogs = require('../server/proto/blog_pb')
+var blogService = require('../server/proto/blog_grpc_pb')
 
+var grpc = require('grpc')
+const fs = require('fs')
+
+// Knex requires
+const environment = process.env.ENVIRONMENT || 'development'
+const config = require('./knex')[environment]
+const knex = require('knex')(config)
+
+// Blog CRUD RPC methods
+
+function listBlog(call, callback) {
+  knex('blogs').then(data => {
+
+    data.forEach(item => {
+      const blog = new blogs.Blog()
+      blog.setId(item.id)
+      blog.setAuthor(item.author)
+      blog.setTitle(item.title)
+      blog.setContent(item.content)
+
+      const blogResponse = new blogs.ListBlogResponse()
+      blogResponse.setBlog(blog)
+
+      call.write(blogResponse)
+    })
+
+    call.end()
+  })
+
+}
+
+
+// Implements RPC methods
 
 function greet(call, callback) {
   var greeting = new greets.GreetResponse()
@@ -191,12 +225,16 @@ function main() {
   //   greetEveryone,
   // })
 
-  server.addService(calcService.CalculatorServiceService, {
-    sum,
-    primeNumberDecomposition,
-    computeAverage,
-    findMaximum,
-    squareRoot,
+  // server.addService(calcService.CalculatorServiceService, {
+  //   sum,
+  //   primeNumberDecomposition,
+  //   computeAverage,
+  //   findMaximum,
+  //   squareRoot,
+  // })
+
+  server.addService(blogService.BlogServiceService, {
+    listBlog,
   })
 
   server.bind('0.0.0.0:50051', grpc.ServerCredentials.createInsecure())

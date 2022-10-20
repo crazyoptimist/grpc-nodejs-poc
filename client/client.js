@@ -4,7 +4,34 @@ var greetService = require('../server/proto/greet_grpc_pb')
 var calc = require('../server/proto/calculator_pb')
 var calcService = require('../server/proto/calculator_grpc_pb')
 
+var blogs = require('../server/proto/blog_pb')
+var blogService = require('../server/proto/blog_grpc_pb')
+
 var grpc = require('grpc')
+
+// Blog CRUD RPC clients
+
+function callListBlog() {
+  const client = new blogService.BlogServiceClient(
+    'localhost:50051',
+    grpc.credentials.createInsecure()
+  )
+
+  const request = new blogs.ListBlogRequest()
+
+  const call = client.listBlog(request, () => {})
+
+  call.on('data', response => {
+    console.log(response.getBlog().toString())
+  })
+
+  call.on('error', error => console.error(error))
+
+  call.on('end', () => console.log('call ended'))
+}
+
+
+// RPC clients
 
 function callGreet() {
   var client = new greetService.GreetServiceClient(
@@ -283,6 +310,6 @@ function getRPCDeadline(rpcType) {
 }
 
 function main() {
-  callSquareRoot()
+  callListBlog()
 }
 main()
